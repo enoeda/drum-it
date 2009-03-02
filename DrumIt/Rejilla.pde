@@ -7,7 +7,8 @@ class Rejilla {
   int [][] iIlum;
   int [][] iIlumBase;
   PImage piFoto;
-  int umbral = 15;
+  //PGraphics pgWebcam;
+  int umbral = 25;
   int iPosEnCompas = 0;
 
   Rejilla(int iWidth, int iHeight){
@@ -26,6 +27,8 @@ class Rejilla {
 
     iIlum = new int[iWidth][iHeight];
     iIlumBase = new int[iWidth][iHeight];
+
+    //pgWebcam = createGraphics(320, 240, P2D);
 
   }
 
@@ -47,8 +50,8 @@ class Rejilla {
     }   
 
   }
-  
-  void renderLight(PImage imagecurr, AudioSample[] asBeatBox) {
+
+  void renderLight(PImage imagecurr, AudioSample[] asBeatBox, boolean mute) {
     piFoto = imagecurr;
     // TODO: copiar lo del render que nos haga falta, no hacer la llamada completa
 
@@ -91,7 +94,7 @@ class Rejilla {
             // stroke(
           }
         }
-        
+
         iIlum[iPasoX-1][iPasoY-1] /= 100;    
         // Pintar base
         fill(160);
@@ -100,39 +103,45 @@ class Rejilla {
         if (abs(iIlum[iPasoX-1][iPasoY-1] - iIlumBase[iPasoX-1][iPasoY-1]) >= umbral) {
           fill(255,0,0);
           stroke (255,0,0);
-        } else {
+        } 
+        else {
           fill(255);
           stroke (227,208,191);          
         }
         text(iIlum[iPasoX-1][iPasoY-1],iPasoX*30, iPasoY*30 + piFoto.height+60);
 
-        line(pvInter.x-5,pvInter.y,pvInter.x+5,pvInter.y);
-        line(pvInter.x,pvInter.y-5,pvInter.x,pvInter.y+5);
+        if (iPasoY>1 && iPasoY<iH && iPasoX>1 && iPasoX<iW){
+          line(pvInter.x-5,pvInter.y,pvInter.x+5,pvInter.y);
+          line(pvInter.x,pvInter.y-5,pvInter.x,pvInter.y+5);
+        }
       }             
     }
-    
+
     noFill();
     rect(68 + iPosEnCompas*30, 395,12,15*(iH-2));
-    
+
     // Revisamos el grid de instrumentos    
-    for (int i=1; i<iH-1; i++) {
+    if (!mute) {
+      for (int i=1; i<iH-1; i++) {
         if (abs(iIlum[iPosEnCompas+1][i] - iIlumBase[iPosEnCompas+1][i]) >= umbral) {
           asBeatBox[i-1].trigger();
         }
+      }
     }
-    
+
     if(++iPosEnCompas>=(iW-2)) iPosEnCompas = 0;
 
   }
-  
+
   void render(){
 
+    //pgWebcam.beginDraw();
     image(piFoto, 0, 0, piFoto.width, piFoto.height);    
     piFoto.loadPixels();
 
     stroke (227,208,191);
     fill(160);
-    
+
     line (pvEsquinas[0][0].x, pvEsquinas[0][0].y, pvEsquinas[1][0].x, pvEsquinas[1][0].y);
     line (pvEsquinas[1][0].x, pvEsquinas[1][0].y, pvEsquinas[1][1].x, pvEsquinas[1][1].y);
     line (pvEsquinas[1][1].x, pvEsquinas[1][1].y, pvEsquinas[0][1].x, pvEsquinas[0][1].y);
@@ -158,8 +167,10 @@ class Rejilla {
         PVector pv3 = interpolaBorde(pvEsquinas[0][0],pvEsquinas[0][1], -0.5+(float)iPasoY, iH);
         PVector pv4 = interpolaBorde(pvEsquinas[1][0],pvEsquinas[1][1], -0.5+(float)iPasoY, iH);            
         PVector pvInter = lineIntersection (pv1, pv2, pv3, pv4);
-        line(pvInter.x-5,pvInter.y,pvInter.x+5,pvInter.y);
-        line(pvInter.x,pvInter.y-5,pvInter.x,pvInter.y+5);
+        if ((iPasoY==1 || iPasoY==iH) && (iPasoX==1||iPasoX==iW)){
+          line(pvInter.x-5,pvInter.y,pvInter.x+5,pvInter.y);
+          line(pvInter.x,pvInter.y-5,pvInter.x,pvInter.y+5);
+        }
         iIlumBase[iPasoX-1][iPasoY-1]=0;
         for (int y = (int)pvInter.y-5; y<(int)pvInter.y+5; y++){
           for (int x = (int)pvInter.x-5; x<(int)pvInter.x+5; x++){
@@ -185,7 +196,7 @@ class Rejilla {
 
   PVector interpolaBorde(PVector pvInicio, PVector pvFin, float fCurrPaso, int iTotPasos){
     return new PVector (pvInicio.x + fCurrPaso*(pvFin.x-pvInicio.x)/iTotPasos,
-                        pvInicio.y + fCurrPaso*(pvFin.y-pvInicio.y)/iTotPasos);
+    pvInicio.y + fCurrPaso*(pvFin.y-pvInicio.y)/iTotPasos);
   }
 
   void pulsarBoton(){
@@ -228,6 +239,8 @@ class Rejilla {
 
 
 }
+
+
 
 
 

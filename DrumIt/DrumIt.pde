@@ -2,6 +2,7 @@ import processing.video.*;
 import ddf.minim.*;
 
 boolean bDebug = true;
+boolean mute = true;
 
 Minim minim;
 AudioSample[] asBeatBox;
@@ -13,7 +14,7 @@ void setup(){
   background(0);
 
   size(800, 600, P2D);
-  frameRate(4);
+  frameRate(8);
   textFont(createFont("Calibri",12));
   rectMode(RADIUS);
 
@@ -53,14 +54,14 @@ void draw(){
       cam.read();
     }    
     background(0);
-    r.renderLight(cam, asBeatBox);
+    r.renderLight(cam, asBeatBox, mute);
 
     break;
   }
 
   if (bDebug) {
     fill(255);        
-    text("Estado: " + iEstado + ", FPS: " +  (int)frameRate ,width-100,height-5);  
+    text("Mute: " + mute + ", Estado: " + iEstado + ", FPS: " +  (int)frameRate ,width-180,height-5);  
   }  
 
 }
@@ -74,7 +75,11 @@ void mouseReleased(){
 }
 
 void keyPressed() {
-
+  if (key=='m' || key=='M') {
+    mute = !(mute);
+    return;
+  }
+  
   if (iEstado==0) {
     r.setBaseImage(cam);
     iEstado++;
