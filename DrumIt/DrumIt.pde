@@ -10,7 +10,9 @@ Capture cam;
 int iEstado = 0;
 Grid gWebcam;
 Grid gProyector;
-int[][] iIlum;
+LightAnalyzer lightAnalyzer;
+boolean[][] analyzedData;
+int [][] iIlumCurrent, iIlumReferencia;
 
 
 void setup(){
@@ -40,6 +42,7 @@ void draw(){
 
   switch (iEstado) {
   case 0: 
+    // Ajustar geometría de la rejilla webcam
     if (cam.available() == true) {
       cam.read();
       background(0);
@@ -50,21 +53,28 @@ void draw(){
     break;
 
   case 1:
+    // Ajustar geometría de la rejilla proyector
     background(0);
     gProyector.update();
     gProyector.paint(true);
     break;
 
   case 2:
+    // Bucle de lectura e interpretación de la imagen de entrada
     //r.update();
     if (cam.available() == true) {
       cam.read();
+      background(0);
+      gProyector.paint(false);
+      iIlumCurrent = gWebcam.readIluminacion(cam);
+      analyzedData = lightAnalyzer.calculate(iIlumCurrent);
+      
+      // TODO: tocar música maestro
+      
+      // 
+      
+     //  print (iIlum[iPasoX-1][iPasoY-1] + ",");
     }    
-    background(0);
-    gProyector.paint(false);
-    // TODO: analiza y play
-    //r.renderLight(cam, asBeatBox, mute);
-
     break;
   }
 
@@ -116,7 +126,8 @@ void keyPressed() {
     }
     cam.read();
     // Tomar medidas de luz de "cam"
-    iIlum = gWebcam.readIluminacion(cam);
+    iIlumReferencia = gWebcam.readIluminacion(cam);
+    lightAnalyzer = new LightAnalyzer(iIlumReferencia);
     //image(cam, 0, 0);
     iEstado++;
   } 

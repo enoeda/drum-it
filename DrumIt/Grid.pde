@@ -139,6 +139,7 @@ class Grid {
     return new PVector(pv1.x+t*bx, pv1.y+t*by);
   }
 
+  // Lee los datos de iluminación de la imagen pasada como parámetro
   int[][] readIluminacion(PImage i) {
     int[][] iIlum = new int[iW][iH];
 
@@ -160,10 +161,8 @@ class Grid {
           }
         }
 
-        iIlum[iPasoX-1][iPasoY-1] /= 100;        
-        print (iIlum[iPasoX-1][iPasoY-1] + ",");
+        iIlum[iPasoX-1][iPasoY-1] /= 100;               
       }             
-      println();
     }  
     return iIlum;
   }
