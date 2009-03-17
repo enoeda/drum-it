@@ -51,7 +51,7 @@ class Rejilla {
 
   }
 
-  void renderLight(PImage imagecurr, AudioSample[] asBeatBox, boolean mute) {
+  void renderLight(PImage imagecurr, AudioChannel[] asBeatBox, boolean mute) {
     piFoto = imagecurr;
     // TODO: copiar lo del render que nos haga falta, no hacer la llamada completa
 
@@ -124,7 +124,7 @@ class Rejilla {
     if (!mute) {
       for (int i=1; i<iH-1; i++) {
         if (abs(iIlum[iPosEnCompas+1][i] - iIlumBase[iPosEnCompas+1][i]) >= umbral) {
-          asBeatBox[i-1].trigger();
+          //asBeatBox[i-1].play();
         }
       }
     }

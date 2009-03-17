@@ -7,8 +7,8 @@ class Grid {
 
   Grid(int iWidth, int iHeight){
 
-    iW=iWidth;
-    iH=iHeight;
+    iW=iWidth+2;
+    iH=iHeight+2;
 
     pvEsquinas = new PVector[2][2];
     pvEsquinas[0][0] = new PVector (20,20);
