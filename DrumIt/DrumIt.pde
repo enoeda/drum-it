@@ -1,14 +1,11 @@
 import processing.video.*;
-//import ddf.minim.*;
 import krister.Ess.*;
 
 
 boolean bDebug = true;
 boolean mute = true;
 
-//Minim minim;
-//AudioSample[] asBeatBox;
-AudioChannel[] asBeatBox;
+AudioChannel[][] asBeatBox;
 Capture cam;
 int iEstado = 0;
 Grid gWebcam;
@@ -27,14 +24,14 @@ void setup(){
   textFont(createFont("Calibri",12));
   rectMode(RADIUS);
 
-  //minim = new Minim(this);
   Ess.start(this);
-  asBeatBox = new AudioChannel[4];
-  asBeatBox[0] = new AudioChannel("KICK1.WAV");
-  asBeatBox[1] = new AudioChannel("SNARE1.WAV");  
-  asBeatBox[2] = new AudioChannel("HHCL.WAV");    
-  asBeatBox[3] = new AudioChannel("HHOP.WAV");      
-  //asBeatBox[3] = minim.loadSample("HHOP.WAV", 2048);    
+  asBeatBox = new AudioChannel[iW][iH];
+  for (int i=0; i<iW; i++) {
+    for (int j=0; j<iH; j++) {
+      asBeatBox[i][j] = new AudioChannel("sample_" + (j+1) + ".WAV");
+
+    }
+  }
 
   //smooth();
 
@@ -73,23 +70,20 @@ void draw(){
       cam.read();
       image(cam, 0, 0);
     }    
-      
 
-
-    
     //gProyector.paint(false);
     gWebcam.paint(false);
     iIlumCurrent = gWebcam.readIluminacion(cam);
     analyzedData = lightAnalyzer.calculate(iIlumCurrent);
 
-
     //if (!mute) {
-      for (int i=1; i<=iH; i++) {
-        if (analyzedData[iPosEnCompas+1][i]) {
-          if (asBeatBox[i-1].state==Ess.PLAYING) asBeatBox[i-1].stop();
-          asBeatBox[i-1].play();
-        }
+    for (int i=1; i<=iH; i++) {
+      if (analyzedData[iPosEnCompas+1][i]) {
+        //if (asBeatBox[i-1].state==Ess.PLAYING) asBeatBox[i-1].stop();
+        asBeatBox[iPosEnCompas][i-1].play();
+
       }
+    }
     //}
 
     noFill();
@@ -158,15 +152,10 @@ void keyPressed() {
 }
 
 void stop(){
-  /*asBeatBox[0].close();
-  asBeatBox[1].close();
-  asBeatBox[2].close();  
-  asBeatBox[3].close();    
-  minim.stop();*/
   Ess.stop();
-
   super.stop();
 }
+
 
 
 

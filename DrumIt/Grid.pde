@@ -155,8 +155,8 @@ class Grid {
         for (int y = (int)pvInter.y-5; y<(int)pvInter.y+5; y++){
           for (int x = (int)pvInter.x-5; x<(int)pvInter.x+5; x++){
             int c = i.get(x,y);
-            // Optimizado para postits fucsia
-            iIlum[iPasoX-1][iPasoY-1] += (((c >> 16) & 0xff) + ((c >> 8) & 0xff) + (c & 0x00)) /3;
+            // Suma de los 3 canales
+            iIlum[iPasoX-1][iPasoY-1] += (((c >> 16) & 0xff) + ((c >> 8) & 0xff) + (c & 0xff)) /3;
             // stroke(
           }
         }
