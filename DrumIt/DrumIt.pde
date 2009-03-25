@@ -1,9 +1,13 @@
 import processing.video.*;
 import krister.Ess.*;
 
+final int FRAMERATE = 8;
+
 
 boolean bDebug = true;
 boolean mute = true;
+double lasttime;
+
 
 AudioChannel[][] asBeatBox;
 Capture cam;
@@ -20,7 +24,7 @@ void setup(){
   background(0);
 
   size(800, 600, P2D);
-  frameRate(8);
+  frameRate(FRAMERATE);
   textFont(createFont("Calibri",12));
   rectMode(RADIUS);
 
@@ -62,8 +66,11 @@ void draw(){
     gProyector.paint(true);
     break;
 
-  case 2:
+  case 2:  
     // Bucle de lectura e interpretación de la imagen de entrada
+
+    lasttime = System.nanoTime(); // Grabamos tiempo último step
+    
     //r.update();
     background(0);
     if (cam.available() == true) {
@@ -90,6 +97,10 @@ void draw(){
     rect(38 + iPosEnCompas*30, 475,12,15*iH);
     if(++iPosEnCompas>=iW) iPosEnCompas = 0;
 
+    double time_lap = (System.nanoTime()-lasttime)/1000;
+    if (time_lap< 1000/FRAMERATE)
+      delay((int)(1000/FRAMERATE-time_lap));
+    
     break;
   }
 
@@ -144,7 +155,7 @@ void keyPressed() {
     iIlumReferencia = gWebcam.readIluminacion(cam);
     lightAnalyzer = new LightAnalyzer(iIlumReferencia);
     //image(cam, 0, 0);
-    iEstado++;
+    iEstado++;    
   } 
   else {
     iEstado = 0;    
