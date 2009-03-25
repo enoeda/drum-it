@@ -1,7 +1,6 @@
 class LightAnalyzer {
   
   int [][] iIlumBase;
-  final int umbral = 25;
   
   LightAnalyzer (int[][] iIlumBase) {
     this.iIlumBase = iIlumBase;
