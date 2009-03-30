@@ -12,7 +12,6 @@ boolean bDebug = true;
 boolean mute = false;
 double tiempo_lastlap;
 
-
 AudioChannel[][] asBeatBox;
 Capture cam;
 int iEstado = 0;
@@ -23,15 +22,18 @@ boolean[][] analyzedData;
 int [][] iIlumCurrent, iIlumReferencia;
 int iPosEnCompas = 0;
 int iH=4, iW=8;
+String sEstado = "Calibrar webcam";
 
 void setup(){
-  background(0);
 
+  background(0);
   size(800, 600, P2D);
   frameRate(FRAMERATE);
-  textFont(createFont("Calibri",12));
-  rectMode(RADIUS);
-
+  rectMode(RADIUS);  
+  smooth();  
+  textFont(createFont("Calibri",18,true));
+  textMode(SCREEN);
+  
   tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;
 
   Ess.start(this);
@@ -42,8 +44,6 @@ void setup(){
 
     }
   }
-
-  //smooth();
 
   cam = new Capture(this, 320, 240);
   gWebcam = new Grid(iW,iH);
@@ -58,8 +58,8 @@ void draw(){
     // Ajustar geometría de la rejilla webcam
     if (cam.available() == true) {
       cam.read();
-      background(0);
-      image(cam, 0, 0);
+      background(0);            
+      image(cam, 40, 30);
       gWebcam.update();
       gWebcam.paint(true);
     }
@@ -77,11 +77,10 @@ void draw(){
 
     tiempo_lastlap = System.nanoTime(); // Grabamos tiempo último step
     
-    //r.update();
     background(0);
     if (cam.available() == true) {
       cam.read();
-      image(cam, 0, 0);
+      image(cam, 40, 30);
     }    
 
     //gProyector.paint(false);
@@ -99,16 +98,15 @@ void draw(){
       }
     }
 
-    noFill();
     // Para pintar el recuadro anterior y no el actual
     int iPosEnCompasAnticipada = iPosEnCompas + 1;
     if (iPosEnCompasAnticipada>=iW)  iPosEnCompasAnticipada = 0;
-    rect(38 + iPosEnCompasAnticipada*30, 475,12,15*iH);
+    fill(100,255,100,30);
+    rect(436 + iPosEnCompasAnticipada*40, 150,19,20*iH);
     
     if(++iPosEnCompas>=iW) iPosEnCompas = 0;
 
     double tiempo_lap = (System.nanoTime()-tiempo_lastlap)/1000000;
-    //print ("lap: " + tiempo_lap + ", frame: " + tiempo_frame); 
     if (tiempo_lap< tiempo_frame)
       delay((int)(tiempo_frame-tiempo_lap));
     
@@ -116,8 +114,20 @@ void draw(){
   }
 
   if (bDebug) {
-    fill(255);        
-    text("Tempo: " + BPM +" bpms, Mute: " + mute + ", Estado: " + iEstado + ", Umbral: " + umbral + ", FPS: " +  (int)frameRate, 0, height-5);  
+    fill(255);      
+    textAlign(RIGHT); 
+    text("Tempo:", 100, 400);  
+    text("Mute:", 100, 430);  
+    text("Estado:", 100, 460);      
+    text("Umbral:", 100, 490);          
+    text("FPS:", 100, 520);              
+
+    textAlign(LEFT); 
+    text(BPM +" bpm  [t/y]", 110, 400);  
+    text(mute + "  [m]", 110, 430);  
+    text(sEstado + "  [espacio]", 110, 460);      
+    text(umbral + "  [u/i]", 110, 490);          
+    text((int)frameRate, 110, 520);        
   }  
 
 }
@@ -178,11 +188,10 @@ void keyPressed() {
   }
 
   if (iEstado==0) {
-    //r.setBaseImage(cam);
     iEstado++;
-  } 
-  else if (iEstado==1) {
-
+    sEstado = "Calibrar proyector";
+  } else if (iEstado==1) {
+    sEstado = "Caja de ritmos";
     // Nos quedamos con la última imagen de la webcam con la rejilla proyectada
     gProyector.paint(false);
     while (cam.available() != true) {

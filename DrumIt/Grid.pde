@@ -11,10 +11,10 @@ class Grid {
     iH=iHeight+2;
 
     pvEsquinas = new PVector[2][2];
-    pvEsquinas[0][0] = new PVector (20,20);
-    pvEsquinas[1][0] = new PVector (340,20);  
-    pvEsquinas[0][1] = new PVector (20,160);
-    pvEsquinas[1][1] = new PVector (340,160);    
+    pvEsquinas[0][0] = new PVector (40,30);
+    pvEsquinas[1][0] = new PVector (360,30);  
+    pvEsquinas[0][1] = new PVector (40,270);
+    pvEsquinas[1][1] = new PVector (360,270);    
 
     bIsMoving = new boolean[2][2];
     soltarBoton();
@@ -23,16 +23,7 @@ class Grid {
 
   void paint (boolean configurable) {
 
-    stroke (227,208,191);
-    fill(160);
-
-    // Pinta borde
-    /*
-    line (pvEsquinas[0][0].x, pvEsquinas[0][0].y, pvEsquinas[1][0].x, pvEsquinas[1][0].y);
-     line (pvEsquinas[1][0].x, pvEsquinas[1][0].y, pvEsquinas[1][1].x, pvEsquinas[1][1].y);
-     line (pvEsquinas[1][1].x, pvEsquinas[1][1].y, pvEsquinas[0][1].x, pvEsquinas[0][1].y);
-     line (pvEsquinas[0][1].x, pvEsquinas[0][1].y, pvEsquinas[0][0].x, pvEsquinas[0][0].y); 
-     */
+    stroke (200);
 
     // Pinta líneas horizontales
     for (int iPaso=0; iPaso<=iH; iPaso++){
@@ -46,7 +37,8 @@ class Grid {
       PVector pv1 = interpolaBorde(pvEsquinas[0][0],pvEsquinas[1][0], iPaso, iW);
       PVector pv2 = interpolaBorde(pvEsquinas[0][1],pvEsquinas[1][1], iPaso, iW);            
       line (pv1.x,pv1.y,pv2.x,pv2.y);      
-    }    
+    }  
+
 
     // Pinta cruces de los centros   
     boolean show; 
@@ -97,11 +89,6 @@ class Grid {
 
   }
 
-  PVector interpolaBorde(PVector pvInicio, PVector pvFin, float fCurrPaso, int iTotPasos){
-    return new PVector (pvInicio.x + fCurrPaso*(pvFin.x-pvInicio.x)/iTotPasos,
-    pvInicio.y + fCurrPaso*(pvFin.y-pvInicio.y)/iTotPasos);
-  }
-
   void pulsarBoton(){
     for(int y = 0; y<2; y++) {
       for(int x = 0; x<2; x++) {
@@ -126,17 +113,17 @@ class Grid {
     float by = pv2.y - pv1.y;
     float dx = pv4.x - pv3.x;
     float dy = pv4.y - pv3.y;
-
     float b_dot_d_perp = bx*dy - by*dx;
-
     if(b_dot_d_perp == 0) return null;
-
     float cx = pv3.x-pv1.x;
     float cy = pv3.y-pv1.y;
-
     float t = (cx*dy - cy*dx) / b_dot_d_perp;
-
     return new PVector(pv1.x+t*bx, pv1.y+t*by);
+  }
+
+  PVector interpolaBorde(PVector pvInicio, PVector pvFin, float fCurrPaso, int iTotPasos){
+    return new PVector (pvInicio.x + fCurrPaso*(pvFin.x-pvInicio.x)/iTotPasos,
+    pvInicio.y + fCurrPaso*(pvFin.y-pvInicio.y)/iTotPasos);
   }
 
   // Lee los datos de iluminación de la imagen pasada como parámetro
@@ -154,10 +141,8 @@ class Grid {
         iIlum[iPasoX-1][iPasoY-1]=0;
         for (int y = (int)pvInter.y-5; y<(int)pvInter.y+5; y++){
           for (int x = (int)pvInter.x-5; x<(int)pvInter.x+5; x++){
-            int c = i.get(x,y);
-            // Suma de los 3 canales
+            int c = i.get(x-40,y-30);
             iIlum[iPasoX-1][iPasoY-1] += (((c >> 16) & 0xff) + ((c >> 8) & 0xff) + (c & 0xff)) /3;
-            // stroke(
           }
         }
 
