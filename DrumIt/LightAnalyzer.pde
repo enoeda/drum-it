@@ -1,5 +1,8 @@
 class LightAnalyzer {
   
+  final int lightdebug_x = 70;
+  final int lightdebug_y = 350;
+
   int [][] iIlumBase;
   
   LightAnalyzer (int[][] iIlumBase) {
@@ -25,7 +28,7 @@ class LightAnalyzer {
           }
         }
         
-        text(iIlumCurrent[i][j],410 + i*40, 56+j*40);
+        text(iIlumCurrent[i][j], lightdebug_x + i*40, lightdebug_y + j*40);
 
       }
     }

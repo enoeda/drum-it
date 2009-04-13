@@ -3,7 +3,7 @@ import krister.Ess.*;
 
 final int FRAMERATE = 100;
 int BPM = 120;
-final int RESOLUCION_NOTA = 2; // 1: negra, 2: corchea, 4: semicorchea
+final int RESOLUCION_NOTA = 4; // 1: negra, 2: corchea, 4: semicorchea
 
 int tiempo_frame;
 int umbral = 25;
@@ -11,6 +11,12 @@ int umbral = 25;
 boolean bDebug = true;
 boolean mute = false;
 double tiempo_lastlap;
+
+final int debug_x = 500;
+final int debug_y = 100;
+final int rectdebug_x = 95;
+final int rectdebug_y = 445;
+
 
 AudioChannel[][] asBeatBox;
 Capture cam;
@@ -21,7 +27,7 @@ LightAnalyzer lightAnalyzer;
 boolean[][] analyzedData;
 int [][] iIlumCurrent, iIlumReferencia;
 int iPosEnCompas = 0;
-int iH=4, iW=8;
+int iH=4, iW=16;
 String sEstado = "Calibrar webcam";
 
 void setup(){
@@ -102,7 +108,7 @@ void draw(){
     int iPosEnCompasAnticipada = iPosEnCompas + 1;
     if (iPosEnCompasAnticipada>=iW)  iPosEnCompasAnticipada = 0;
     fill(100,255,100,30);
-    rect(436 + iPosEnCompasAnticipada*40, 150,19,20*iH);
+    rect(rectdebug_x + iPosEnCompasAnticipada*40, rectdebug_y, 19, 20*iH);
     
     if(++iPosEnCompas>=iW) iPosEnCompas = 0;
 
@@ -116,18 +122,18 @@ void draw(){
   if (bDebug) {
     fill(255);      
     textAlign(RIGHT); 
-    text("Tempo:", 100, 400);  
-    text("Mute:", 100, 430);  
-    text("Estado:", 100, 460);      
-    text("Umbral:", 100, 490);          
-    text("FPS:", 100, 520);              
+    text("Tempo:", debug_x, debug_y);  
+    text("Mute:", debug_x, debug_y+30);  
+    text("Estado:", debug_x, debug_y+60);      
+    text("Umbral:", debug_x, debug_y+90);          
+    text("FPS:", debug_x, debug_y+120);              
 
     textAlign(LEFT); 
-    text(BPM +" bpm  [t/y]", 110, 400);  
-    text(mute + "  [m]", 110, 430);  
-    text(sEstado + "  [espacio]", 110, 460);      
-    text(umbral + "  [u/i]", 110, 490);          
-    text((int)frameRate, 110, 520);        
+    text(BPM +" bpm  [t/y]", debug_x+10, debug_y);  
+    text(mute + "  [m]", debug_x+10, debug_y+30);  
+    text(sEstado + "  [espacio]", debug_x+10, debug_y+60);      
+    text(umbral + "  [u/i]", debug_x+10, debug_y+90);          
+    text((int)frameRate, debug_x+10, debug_y+120);        
   }  
 
 }
