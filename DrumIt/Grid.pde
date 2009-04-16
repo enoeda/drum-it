@@ -1,4 +1,4 @@
-﻿class Grid {
+class Grid {
 
   int iW, iH;
   PVector [][] pvEsquinas;

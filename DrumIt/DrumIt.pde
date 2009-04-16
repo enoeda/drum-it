@@ -13,12 +13,14 @@ boolean mute = false;
 double tiempo_lastlap;
 
 final int debug_x = 500;
-final int debug_y = 100;
+final int debug_y = 80;
 final int rectdebug_x = 95;
 final int rectdebug_y = 445;
 
+final int maxkits = 4;
+int currentkit=0;
 
-AudioChannel[][] asBeatBox;
+AudioChannel[][][] asBeatBox;
 Capture cam;
 int iEstado = 0;
 Grid gWebcam;
@@ -41,15 +43,7 @@ void setup(){
   textMode(SCREEN);
   
   tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;
-
-  Ess.start(this);
-  asBeatBox = new AudioChannel[iW][iH];
-  for (int i=0; i<iW; i++) {
-    for (int j=0; j<iH; j++) {
-      asBeatBox[i][j] = new AudioChannel("sample_" + (j+1) + ".WAV");
-
-    }
-  }
+  initSound();
 
   cam = new Capture(this, 320, 240);
   gWebcam = new Grid(iW,iH);
@@ -98,7 +92,7 @@ void draw(){
       for (int i=1; i<=iH; i++) {
         if (analyzedData[iPosEnCompas+1][i]) {
           //if (asBeatBox[i-1].state==Ess.PLAYING) asBeatBox[i-1].stop();
-          asBeatBox[iPosEnCompas][i-1].play();
+          asBeatBox[currentkit][iPosEnCompas][i-1].play();
   
         }
       }
@@ -124,16 +118,18 @@ void draw(){
     textAlign(RIGHT); 
     text("Tempo:", debug_x, debug_y);  
     text("Mute:", debug_x, debug_y+30);  
-    text("Estado:", debug_x, debug_y+60);      
-    text("Umbral:", debug_x, debug_y+90);          
-    text("FPS:", debug_x, debug_y+120);              
+    text("Estado:", debug_x, debug_y+60);
+    text("Kit:", debug_x, debug_y+90);              
+    text("Umbral:", debug_x, debug_y+120);          
+    text("FPS:", debug_x, debug_y+150);              
 
     textAlign(LEFT); 
     text(BPM +" bpm  [t/y]", debug_x+10, debug_y);  
     text(mute + "  [m]", debug_x+10, debug_y+30);  
     text(sEstado + "  [espacio]", debug_x+10, debug_y+60);      
-    text(umbral + "  [u/i]", debug_x+10, debug_y+90);          
-    text((int)frameRate, debug_x+10, debug_y+120);        
+    text(currentkit + "  [k]", debug_x+10, debug_y+90);          
+    text(umbral + "  [u/i]", debug_x+10, debug_y+120);          
+    text((int)frameRate, debug_x+10, debug_y+150);        
   }  
 
 }
@@ -163,7 +159,12 @@ void mouseReleased(){
 
 void keyPressed() {
   if (key=='m' || key=='M') {
-    mute = !(mute);
+    if (!mute) {
+       // Reinicializamos el sistema de audio
+       Ess.stop();
+       initSound();
+    }     
+    mute = !(mute);   
     return;
   }
 
@@ -178,6 +179,14 @@ void keyPressed() {
     // tempo abajo
     BPM--;
     tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;
+    return;
+  }
+
+  if (key=='k' || key=='K') {
+    // tempo abajo
+    currentkit++;
+    if (currentkit>=maxkits)
+      currentkit=0;
     return;
   }
 
@@ -214,10 +223,19 @@ void keyPressed() {
   }
 }
 
+void initSound() {  
+  Ess.start(this);
+  asBeatBox = new AudioChannel[maxkits][iW][iH];
+  for (int a=0; a<maxkits; a++) {
+    for (int i=0; i<iW; i++) {
+      for (int j=0; j<iH; j++) {
+        asBeatBox[a][i][j] = new AudioChannel("kit_" + (a+1) + "_sample_" + (j+1) + ".WAV");
+      }
+    }
+  }
+}
+
 void stop(){
   Ess.stop();
   super.stop();
 }
-
-
-
