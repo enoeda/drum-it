@@ -3,6 +3,9 @@ import krister.Ess.*;
 
 final int FRAMERATE = 100;
 int BPM = 120;
+final int TEMPO_BASE = 100;
+final int TEMPO_DIFF = 5;
+
 final int RESOLUCION_NOTA = 4; // 1: negra, 2: corchea, 4: semicorchea
 
 int tiempo_frame;
@@ -11,6 +14,7 @@ int umbral = 25;
 boolean bDebug = true;
 boolean mute = false;
 double tiempo_lastlap;
+boolean modo_edicion = false;
 
 final int debug_x = 500;
 final int debug_y = 80;
@@ -42,7 +46,7 @@ void setup(){
   textFont(createFont("Calibri",18,true));
   textMode(SCREEN);
   
-  tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;
+  tiempo_frame = calculaTiempoFrame(BPM);
   initSound();
 
   cam = new Capture(this, 320, 240);
@@ -85,15 +89,32 @@ void draw(){
 
     //gProyector.paint(false);
     gWebcam.paint(false);
+
+    // Miramos si ha habido cambios en la imagen
     iIlumCurrent = gWebcam.readIluminacion(cam);
-    analyzedData = lightAnalyzer.calculate(iIlumCurrent);
+
+    if (!modo_edicion) {
+      // Analizamos y pintamos los datos y los guardamos
+      analyzedData = lightAnalyzer.calculate(iIlumCurrent);
+    } else {
+      // Analizamos y pintamos los datos, pero no los guardamos
+      lightAnalyzer.calculate(iIlumCurrent);
+    }    
+
+    if (!modo_edicion) {
+      // Miramos si ha habido cambios en la fila del tempo
+      if (analyzedData[iPosEnCompas+1][0]) {
+        BPM = TEMPO_BASE + (iPosEnCompas*TEMPO_DIFF);
+        tiempo_frame = calculaTiempoFrame(BPM);
+      }
+    }
 
     if (!mute) {
+      // Tocamos fila según los últimos cambios leídos
       for (int i=1; i<=iH; i++) {
         if (analyzedData[iPosEnCompas+1][i]) {
           //if (asBeatBox[i-1].state==Ess.PLAYING) asBeatBox[i-1].stop();
           asBeatBox[currentkit][iPosEnCompas][i-1].play();
-  
         }
       }
     }
@@ -118,18 +139,20 @@ void draw(){
     textAlign(RIGHT); 
     text("Tempo:", debug_x, debug_y);  
     text("Mute:", debug_x, debug_y+30);  
-    text("Estado:", debug_x, debug_y+60);
-    text("Kit:", debug_x, debug_y+90);              
-    text("Umbral:", debug_x, debug_y+120);          
-    text("FPS:", debug_x, debug_y+150);              
+    text("Modo edición:", debug_x, debug_y+60);  
+    text("Estado:", debug_x, debug_y+90);
+    text("Kit:", debug_x, debug_y+120);              
+    text("Umbral:", debug_x, debug_y+150);          
+    text("FPS:", debug_x, debug_y+180);              
 
     textAlign(LEFT); 
     text(BPM +" bpm  [t/y]", debug_x+10, debug_y);  
     text(mute + "  [m]", debug_x+10, debug_y+30);  
-    text(sEstado + "  [espacio]", debug_x+10, debug_y+60);      
-    text(currentkit + "  [k]", debug_x+10, debug_y+90);          
-    text(umbral + "  [u/i]", debug_x+10, debug_y+120);          
-    text((int)frameRate, debug_x+10, debug_y+150);        
+    text(modo_edicion + "  [e]", debug_x+10, debug_y+60);  
+    text(sEstado + "  [espacio]", debug_x+10, debug_y+90);      
+    text(currentkit + "  [k]", debug_x+10, debug_y+120);          
+    text(umbral + "  [u/i]", debug_x+10, debug_y+150);          
+    text((int)frameRate, debug_x+10, debug_y+180);        
   }  
 
 }
@@ -171,14 +194,14 @@ void keyPressed() {
   if (key=='t' || key=='T') {
     // tempo arriba
     BPM++;
-    tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;    
+    tiempo_frame = calculaTiempoFrame(BPM);
     return;
   }
 
   if (key=='y' || key=='Y') {
     // tempo abajo
     BPM--;
-    tiempo_frame = 60000 / RESOLUCION_NOTA / BPM;
+    tiempo_frame = calculaTiempoFrame(BPM);
     return;
   }
 
@@ -202,25 +225,37 @@ void keyPressed() {
     return;
   }
 
-  if (iEstado==0) {
-    iEstado++;
-    sEstado = "Calibrar proyector";
-  } else if (iEstado==1) {
-    sEstado = "Caja de ritmos";
-    // Nos quedamos con la última imagen de la webcam con la rejilla proyectada
-    gProyector.paint(false);
-    while (cam.available() != true) {
-    }
-    cam.read();
-    // Tomar medidas de luz de "cam"
-    iIlumReferencia = gWebcam.readIluminacion(cam);
-    lightAnalyzer = new LightAnalyzer(iIlumReferencia);
-    //image(cam, 0, 0);
-    iEstado++;    
-  } 
-  else {
-    iEstado = 0;    
+  if (key=='e' || key=='E') {
+    // modo edicion ON y OFF
+    modo_edicion = !modo_edicion;
+    return;
   }
+
+  if (key==' ') {
+
+    if (iEstado==0) {
+      iEstado++;
+      sEstado = "Calibrar proyector";
+    } else if (iEstado==1) {
+      sEstado = "Caja de ritmos";
+      // Nos quedamos con la última imagen de la webcam con la rejilla proyectada
+      gProyector.paint(false);
+      while (cam.available() != true) {
+      }
+      cam.read();
+      // Tomar medidas de luz de "cam"
+      iIlumReferencia = gWebcam.readIluminacion(cam);
+      lightAnalyzer = new LightAnalyzer(iIlumReferencia);
+      //image(cam, 0, 0);
+      iEstado++;    
+    } 
+    else {
+      iEstado = 0;    
+      sEstado = "Calibrar webcam"; 
+    }
+    return;
+  }
+  
 }
 
 void initSound() {  
@@ -235,6 +270,10 @@ void initSound() {
   }
 }
 
+int calculaTiempoFrame (int bpm) {
+  return (60000 / RESOLUCION_NOTA / bpm);
+}
+  
 void stop(){
   Ess.stop();
   super.stop();

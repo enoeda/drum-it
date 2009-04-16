@@ -8,7 +8,7 @@ class LightAnalyzer {
   LightAnalyzer (int[][] iIlumBase) {
     this.iIlumBase = iIlumBase;
   }
-  
+    
   boolean[][] calculate(int[][] iIlumCurrent) {
     
     textAlign(RIGHT);
