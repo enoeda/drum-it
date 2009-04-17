@@ -15,6 +15,7 @@ boolean bDebug = true;
 boolean mute = false;
 double tiempo_lastlap;
 boolean modo_edicion = false;
+boolean valor_absoluto = false;
 
 final int debug_x = 500;
 final int debug_y = 80;
@@ -95,10 +96,10 @@ void draw(){
 
     if (!modo_edicion) {
       // Analizamos y pintamos los datos y los guardamos
-      analyzedData = lightAnalyzer.calculate(iIlumCurrent);
+      analyzedData = lightAnalyzer.calculate(iIlumCurrent, valor_absoluto);
     } else {
       // Analizamos y pintamos los datos, pero no los guardamos
-      lightAnalyzer.calculate(iIlumCurrent);
+      lightAnalyzer.calculate(iIlumCurrent, valor_absoluto);
     }    
 
     if (!modo_edicion) {
@@ -151,7 +152,7 @@ void draw(){
     text(modo_edicion + "  [e]", debug_x+10, debug_y+60);  
     text(sEstado + "  [espacio]", debug_x+10, debug_y+90);      
     text(currentkit + "  [k]", debug_x+10, debug_y+120);          
-    text(umbral + "  [u/i]", debug_x+10, debug_y+150);          
+    text(umbral + "  [u/i] - " + (valor_absoluto?"abs":"rel") + " [o]", debug_x+10, debug_y+150);          
     text((int)frameRate, debug_x+10, debug_y+180);        
   }  
 
@@ -222,6 +223,12 @@ void keyPressed() {
   if (key=='i' || key=='I') {
     // umbral abajo
     umbral--;
+    return;
+  }
+
+  if (key=='o' || key=='O') {
+    // umbral abajo
+    valor_absoluto = !valor_absoluto;
     return;
   }
 

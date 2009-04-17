@@ -9,15 +9,17 @@ class LightAnalyzer {
     this.iIlumBase = iIlumBase;
   }
     
-  boolean[][] calculate(int[][] iIlumCurrent) {
+  boolean[][] calculate(int[][] iIlumCurrent, boolean valor_absoluto) {
     
     textAlign(RIGHT);
 
     boolean[][] resultados = new boolean[iIlumCurrent.length][iIlumCurrent[0].length];
+    int diff;
     
     for (int i=0; i<iIlumCurrent.length; i++) {
       for (int j=0; j<iIlumCurrent[i].length; j++) {
-        resultados[i][j] = (abs(iIlumCurrent[i][j] - iIlumBase[i][j]) >= umbral);
+        diff = (iIlumCurrent[i][j] - iIlumBase[i][j]);
+        resultados[i][j] = (abs(diff) >= umbral);
         if (resultados[i][j]) {
           fill(255,0,0);
         } else {
@@ -28,7 +30,10 @@ class LightAnalyzer {
           }
         }
         
-        text(iIlumCurrent[i][j], lightdebug_x + i*40, lightdebug_y + j*40);
+        if (valor_absoluto)          
+          text(iIlumCurrent[i][j], lightdebug_x + i*40, lightdebug_y + j*40);
+        else
+          text(diff, lightdebug_x + i*40, lightdebug_y + j*40);        
 
       }
     }
